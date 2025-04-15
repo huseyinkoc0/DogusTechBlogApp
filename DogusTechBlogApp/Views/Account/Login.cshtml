@@ -1,0 +1,17 @@
+﻿@{
+    ViewData["Title"] = "Giriş Yap";
+}
+<h2>Giriş Yap</h2>
+<form method="post">
+    <div class="mb-3">
+        <label>Email</label>
+        <input name="email" class="form-control" required />
+    </div>
+    <div class="mb-3">
+        <label>Şifre</label>
+        <input name="password" type="password" class="form-control" required />
+    </div>
+    <button type="submit" class="btn btn-primary">Giriş</button>
+    <p class="mt-3">Hesabınız yok mu? <a href="@Url.Action("Register", "Account")">Kayıt Ol</a></p>
+    <p class="text-danger">@ViewBag.Error</p>
+</form>

@@ -1,0 +1,30 @@
+﻿@model DogusTechBlogApp.ViewComponents.SidebarViewModel
+
+<div class="card mb-4">
+    <div class="card-header bg-primary text-white">
+        Kategoriler
+    </div>
+    <ul class="list-group list-group-flush">
+        @foreach (var category in Model.Categories)
+        {
+            <li class="list-group-item">
+                <a href="@Url.Action("Category", "Blog", new { categoryId = category.Id })" class="text-decoration-none">@category.Name</a>
+            </li>
+        }
+    </ul>
+</div>
+
+<div class="card">
+    <div class="card-header bg-success text-white">
+        Yeni Bloglar
+    </div>
+    <ul class="list-group list-group-flush">
+        @foreach (var blog in Model.RecentBlogs)
+        {
+            <li class="list-group-item">
+                <a href="@Url.Action("Details", "Blog", new { id = blog.Id })">@blog.Title</a>
+                <span class="badge bg-danger ms-2">Yeni</span>
+            </li>
+        }
+    </ul>
+</div>

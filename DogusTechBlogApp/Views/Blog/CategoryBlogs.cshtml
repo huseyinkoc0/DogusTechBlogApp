@@ -1,0 +1,29 @@
+﻿@model List<DogusTechBlogApp.Entity.Blog>
+
+<h1 class="mb-4">@Model.FirstOrDefault()?.Category?.Name Kategorisindeki Bloglar</h1>
+
+<div class="row">
+    @foreach (var blog in Model)
+    {
+        <div class="col-md-4 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">@blog.Title</h5>
+
+                    @* Blog içeriğinden ilk 5 kelimeyi alıp gösterelim *@
+                    @{
+                        var firstFiveWords = string.Join(" ", blog.Content.Split(' ').Take(5));
+                    }
+
+                    <p class="card-text">
+                        @firstFiveWords... <a href="@Url.Action("Details", "Blog", new { id = blog.Id })" class="text-decoration-none">Devamını Oku</a>
+                    </p>
+
+                    <p class="text-muted small">
+                        Kategori: @blog.Category?.Name | Yazar: @blog.User?.FirstName @blog.User?.LastName
+                    </p>
+                </div>
+            </div>
+        </div>
+    }
+</div>

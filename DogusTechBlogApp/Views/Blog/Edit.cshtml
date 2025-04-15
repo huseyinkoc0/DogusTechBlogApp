@@ -1,0 +1,19 @@
+﻿@model DogusTechBlogApp.Entity.Blog
+
+@{
+    ViewData["Title"] = "Blog Düzenle";
+}
+
+<h2>Blog Düzenle</h2>
+
+<form method="post">
+    <div class="mb-3">
+        <label for="Title" class="form-label">Başlık</label>
+        <input type="text" class="form-control" id="Title" name="Title" value="@Model.Title" required />
+    </div>
+    <div class="mb-3">
+        <label for="Content" class="form-label">İçerik</label>
+        <textarea class="form-control" id="Content" name="Content" rows="5" required>@Model.Content</textarea>
+    </div>
+    <button type="submit" class="btn btn-primary">Düzenlemeyi Kaydet</button>
+</form>
