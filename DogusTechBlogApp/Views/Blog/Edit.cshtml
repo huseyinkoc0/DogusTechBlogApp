@@ -2,18 +2,60 @@
 
 @{
     ViewData["Title"] = "Blog Düzenle";
+    var categories = ViewBag.Categories as List<DogusTechBlogApp.Entity.Category>;
 }
 
-<h2>Blog Düzenle</h2>
+<h2>@ViewData["Title"]</h2>
 
-<form method="post">
-    <div class="mb-3">
-        <label for="Title" class="form-label">Başlık</label>
-        <input type="text" class="form-control" id="Title" name="Title" value="@Model.Title" required />
+<div class="row">
+    <div class="col-md-8">
+        <form action="/Blog/Edit" method="post" enctype="multipart/form-data">
+            <input type="hidden" name="Id" value="@Model.Id" />
+            <input type="hidden" name="UserId" value="@Model.UserId" />
+            <input type="hidden" name="CreatedAt" value="@Model.CreatedAt" />
+            <input type="file" name="ImageFile" class="form-control" />
+
+            <input type="hidden" name="UserId" value="@Model.UserId" />
+
+
+            <div class="form-group">
+                <label>Başlık</label>
+                <input type="text" name="Title" value="@Model.Title" class="form-control" />
+            </div>
+
+            <div class="form-group">
+                <label>İçerik</label>
+                <textarea name="Content" class="form-control" rows="8">@Model.Content</textarea>
+            </div>
+
+            <div class="form-group">
+                <label>Kategori</label>
+                <select name="CategoryId" class="form-control">
+                    <option value="">-- Kategori Seçin --</option>
+                    @foreach (var category in categories)
+                    {
+                        <!option value="@category.Id" @(category.Id == Model.CategoryId ? "selected" : "")>
+                            @category.Name
+                        </!option>
+                    }
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Görsel</label>
+                <input type="file" name="ImageFile" class="form-control" />
+                @if (!string.IsNullOrEmpty(Model.ImageUrl))
+                {
+                    <div class="mt-2">
+                        <img src="@Model.ImageUrl" class="img-thumbnail" style="max-height: 200px;" />
+                    </div>
+                }
+            </div>
+
+            <div class="form-group mt-3">
+                <button type="submit" class="btn btn-primary">Düzenlemeyi Kaydet</button>
+                <a href="/Blog/MyBlogs" class="btn btn-secondary">İptal</a>
+            </div>
+        </form>
     </div>
-    <div class="mb-3">
-        <label for="Content" class="form-label">İçerik</label>
-        <textarea class="form-control" id="Content" name="Content" rows="5" required>@Model.Content</textarea>
-    </div>
-    <button type="submit" class="btn btn-primary">Düzenlemeyi Kaydet</button>
-</form>
+</div>

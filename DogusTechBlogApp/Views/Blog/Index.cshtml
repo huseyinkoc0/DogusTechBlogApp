@@ -10,7 +10,13 @@
         {
             <div class="col-md-4 mb-4">
                 <div class="card h-100 shadow-sm">
-                    <img src="https://via.placeholder.com/600x300" class="card-img-top" alt="Blog Image">
+                    <img src="@(string.IsNullOrEmpty(blog.ImageUrl)
+                                  ? "https://via.placeholder.com/600x300"
+                                  : blog.ImageUrl)"
+                         class="card-img-top"
+                         alt="Blog Görseli"
+                         style="max-height: 200px; object-fit: cover;" />
+
                     <div class="card-body d-flex flex-column">
                         <h5 class="card-title">@blog.Title</h5>
                         <p class="card-subtitle text-muted mb-2">@blog.Category?.Name</p>

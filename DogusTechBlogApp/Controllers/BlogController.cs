@@ -3,7 +3,9 @@ using DogusTechBlogApp.Data.Concrete;
 using DogusTechBlogApp.Entity;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using System.Diagnostics;
 using System.Security.Claims;
 
 namespace DogusTechBlogApp.Controllers
@@ -14,7 +16,7 @@ namespace DogusTechBlogApp.Controllers
         private readonly ICommentRepository _commentRepository;
         private readonly ICategoryRepository _categoryRepository;
 
-        public BlogController(IBlogRepository blogRepository, ICommentRepository commentRepository,ICategoryRepository categoryRepository)
+        public BlogController(IBlogRepository blogRepository, ICommentRepository commentRepository, ICategoryRepository categoryRepository)
         {
             _blogRepository = blogRepository;
             _commentRepository = commentRepository;
@@ -26,14 +28,14 @@ namespace DogusTechBlogApp.Controllers
         {
             var blogs = _blogRepository.Blogs
                 .Include(b => b.Category)
-                .Include(b => b.User) // Bu kısmı eklemen gerek
+                .Include(b => b.User) 
                 .ToList();
 
             return View(blogs);
         }
 
 
-        // Blog detaylarını görüntüleme
+       
         public IActionResult Details(int id)
         {
             var blog = _blogRepository.Blogs
@@ -47,100 +49,163 @@ namespace DogusTechBlogApp.Controllers
             return View(blog);
         }
 
-        // Yorum ekleme (Ajax veya form ile)
+    
+        [HttpPost]
         [HttpPost]
         public IActionResult AddComment(int blogId, string text)
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+           
+            var userId = User.FindFirstValue("UserId");
             var username = User.FindFirstValue(ClaimTypes.Name);
             var avatar = User.FindFirstValue(ClaimTypes.UserData);
+
+        
+            if (string.IsNullOrEmpty(userId))
+            {
+                
+                return Json(new { error = "Geçersiz kullanıcı ID." });
+            }
 
             var comment = new Comment
             {
                 BlogId = blogId,
                 Content = text,
-                UserId = int.Parse(userId ?? ""),
+                UserId = int.Parse(userId), 
                 CreatedAt = DateTime.Now
             };
 
             _commentRepository.CreateComment(comment);
 
-            return Json(new
-            {
-                username,
-                text,
-                publishedOn = comment.CreatedAt.ToString("g"),
-                avatar
-            });
+            return RedirectToAction("Details", "Blog", new { id = blogId });
         }
 
-        // Blog oluşturma
+
+
+
+        //blog olusturma
         [Authorize]
         public IActionResult Create()
         {
+            ViewBag.Categories = _categoryRepository.Categories.ToList();
             return View();
         }
 
-        // Blog oluşturma (POST)
+
         [HttpPost]
         [Authorize]
- 
-        public IActionResult Create(Blog blog)
+        public async Task<IActionResult> Create(Blog blog, IFormFile? ImageFile)
         {
-            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+            var userIdClaim = User.FindFirst("UserId");
             if (userIdClaim == null)
                 return RedirectToAction("Login", "Account");
 
             blog.UserId = int.Parse(userIdClaim.Value);
             blog.CreatedAt = DateTime.Now;
+
+            // Görsel yüklendiyse işle
+            if (ImageFile != null && ImageFile.Length > 0)
+            {
+                var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/uploads");
+                if (!Directory.Exists(uploadsFolder))
+                {
+                    Directory.CreateDirectory(uploadsFolder);
+                }
+
+                var uniqueFileName = Guid.NewGuid().ToString() + Path.GetExtension(ImageFile.FileName);
+                var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await ImageFile.CopyToAsync(stream);
+                }
+
+                blog.ImageUrl = "/uploads/" + uniqueFileName;
+            }
+
             _blogRepository.CreateBlog(blog);
 
             return RedirectToAction("MyBlogs");
         }
 
 
-        // Blog düzenleme
-        [Authorize]
+
+
+     
         public IActionResult Edit(int id)
         {
-            var blog = _blogRepository.Blogs.FirstOrDefault(b => b.Id == id);
+            var blog = _blogRepository.GetBlogById(id);
             if (blog == null)
-                return NotFound();
-
-            return View(blog);
-        }
-
-        // Blog düzenleme (POST)
-        [HttpPost]
-        [Authorize]
-        public IActionResult Edit(Blog model)
-        {
-            if (ModelState.IsValid)
             {
-                _blogRepository.UpdateBlog(model);
-                return RedirectToAction("Index");
+                return NotFound(); 
             }
 
-            return View(model);
+            ViewBag.Categories = _categoryRepository.GetCategories(); 
+
+            return View(blog);  
         }
+
+        [HttpPost]
+        [Authorize]
+        public async Task<IActionResult> Edit(Blog blog, IFormFile? ImageFile)
+        {
+            if (!ModelState.IsValid)
+            {
+                ViewBag.Categories = _categoryRepository.GetCategories();
+                return View(blog);
+            }
+
+           
+            if (ImageFile != null && ImageFile.Length > 0)
+            {
+                var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/uploads");
+                if (!Directory.Exists(uploadsFolder))
+                {
+                    Directory.CreateDirectory(uploadsFolder);
+                }
+
+                var uniqueFileName = Guid.NewGuid().ToString() + Path.GetExtension(ImageFile.FileName);
+                var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await ImageFile.CopyToAsync(stream);
+                }
+
+                blog.ImageUrl = "/uploads/" + uniqueFileName;
+            }
+
+            blog.UpdatedAt = DateTime.Now;
+            _blogRepository.UpdateBlog(blog);
+
+            return RedirectToAction("MyBlogs");
+        }
+
+
+
+
+
+
+
+
+
+
 
 
         public IActionResult CategoryBlogs(int categoryId)
         {
-            // Kategoriyi al
-            // Kategoriye ait blogları User ve Category dahil ederek al
+            
             var blogs = _blogRepository.Blogs
-                .Where(b => b.CategoryId == categoryId)  // CategoryId'ye göre filtrele
-                .Include(b => b.User)  // User'ı dahil et
-                .Include(b => b.Category)  // Category'yi dahil et
+                .Where(b => b.CategoryId == categoryId)  
+                .Include(b => b.User)  
+                .Include(b => b.Category)  
                 .ToList();
 
-            if (!blogs.Any())  // Eğer kategoriye ait blog yoksa
+            if (!blogs.Any())  
             {
                 return NotFound("Kategoriye ait blog bulunamadı.");
             }
 
-            // Blogları View'a gönder
+            
             return View(blogs);
         }
 
@@ -157,6 +222,20 @@ namespace DogusTechBlogApp.Controllers
 
             return View(blogs);
         }
+
+
+        [Authorize]
+        public IActionResult Delete(int id)
+        {
+            var blog = _blogRepository.Blogs.FirstOrDefault(b => b.Id == id);
+            if (blog == null)
+                return NotFound();
+
+            _blogRepository.DeleteBlog(blog.Id);  
+
+            return RedirectToAction("MyBlogs"); 
+        }
+
 
 
     }

@@ -10,6 +10,7 @@ namespace DogusTechBlogApp.Data.Abstarct
         void Update(Category category);
         void Delete(int id);
 
+        List<Category> GetCategories();
 
     }
 }

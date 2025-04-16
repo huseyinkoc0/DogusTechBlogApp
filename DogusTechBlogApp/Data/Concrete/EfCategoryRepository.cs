@@ -31,6 +31,11 @@ namespace DogusTechBlogApp.Data.Concrete
             }
         }
 
+        public List<Category> GetCategories()
+        {
+            return _context.Categories.ToList();
+        }
+
         public void Update(Category category)
         {
           _context.Categories.Update(category);

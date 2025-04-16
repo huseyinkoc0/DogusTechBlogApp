@@ -8,6 +8,6 @@ namespace DogusTechBlogApp.Data.Abstarct
         void CreateBlog(Blog blog);
         void UpdateBlog(Blog blog);
         void DeleteBlog(int id);
-
+        Blog GetBlogById(int id);
     }
 }

@@ -10,7 +10,7 @@
                 <div class="card-body">
                     <h5 class="card-title">@blog.Title</h5>
 
-                    @* Blog içeriğinden ilk 5 kelimeyi alıp gösterelim *@
+                 
                     @{
                         var firstFiveWords = string.Join(" ", blog.Content.Split(' ').Take(5));
                     }

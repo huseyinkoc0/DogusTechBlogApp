@@ -1,0 +1,27 @@
+﻿@model DogusTechBlogApp.Entity.Category
+@{
+    ViewData["Title"] = "Add";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<h2>Kategori Ekle</h2>
+
+@if (ViewBag.Error != null)
+{
+    <div class="alert alert-danger">@ViewBag.Error</div>
+}
+
+<form method="post" action="/Category/Add">
+    <div class="mb-3">
+        <label for="name" class="form-label">Kategori Adı</label>
+        <input type="text" name="name" id="name" class="form-control" placeholder="Kategori adını giriniz" />
+    </div>
+
+    <div class="mb-3">
+        <label for="description" class="form-label">Açıklama</label>
+        <textarea name="description" id="description" class="form-control" rows="3" placeholder="Kategori açıklaması (isteğe bağlı)"></textarea>
+    </div>
+
+    <button type="submit" class="btn btn-success">Kaydet</button>
+</form>

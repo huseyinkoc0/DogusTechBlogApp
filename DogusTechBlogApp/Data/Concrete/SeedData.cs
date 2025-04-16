@@ -17,11 +17,10 @@ namespace DogusTechBlogApp.Data
 
             if (context.Users.Any() || context.Categories.Any() || context.Blogs.Any() || context.Comments.Any())
             {
-                // Zaten veri varsa tekrar ekleme
+                
                 return;
             }
 
-            // 1. Kullanıcı
             var user = new User
             {
                 FirstName = "Admin",
@@ -33,7 +32,6 @@ namespace DogusTechBlogApp.Data
             context.Users.Add(user);
             context.SaveChanges();
 
-            // 2. Kategori
             var category = new Category
             {
                 Name = "Genel",
@@ -42,7 +40,7 @@ namespace DogusTechBlogApp.Data
             context.Categories.Add(category);
             context.SaveChanges();
 
-            // 3. Blog
+       
             var blog = new Blog
             {
                 Title = "İlk Blog Yazısı",
@@ -57,7 +55,7 @@ namespace DogusTechBlogApp.Data
             context.Blogs.Add(blog);
             context.SaveChanges();
 
-            // 4. Yorum
+            
             var comment = new Comment
             {
                 Content = "Harika bir yazı olmuş!",
@@ -68,7 +66,7 @@ namespace DogusTechBlogApp.Data
             context.Comments.Add(comment);
 
             context.SaveChanges();
-            // 2. Blog
+           
             var blog2 = new Blog
             {
                 Title = "Teknolojide Son Gelişmeler",
@@ -80,20 +78,18 @@ namespace DogusTechBlogApp.Data
                 ImageUrl = null
             };
             context.Blogs.Add(blog2);
-            context.SaveChanges(); // 👈 BURASI KRİTİK
+            context.SaveChanges(); 
 
-            // 2. Blog'a Yorum
             var comment2 = new Comment
             {
                 Content = "Çok bilgilendirici olmuş, teşekkürler!",
-                BlogId = blog2.Id, // artık blog2.Id doğru
+                BlogId = blog2.Id, 
                 UserId = user.Id,
                 CreatedAt = DateTime.Now
             };
             context.Comments.Add(comment2);
             context.SaveChanges();
 
-            // 3. Blog
             var blog3 = new Blog
             {
                 Title = "Sağlıklı Yaşam İpuçları",
@@ -107,7 +103,7 @@ namespace DogusTechBlogApp.Data
             context.Blogs.Add(blog3);
             context.SaveChanges();
 
-            // 3. Blog'a Yorum
+            
             var comment3 = new Comment
             {
                 Content = "Kesinlikle katılıyorum. Spor şart!",
